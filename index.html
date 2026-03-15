@@ -1,179 +1,148 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Padel Counter</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f3f3f3;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Padel Counter</title>
 
-    h1 {
-      margin: 20px 0;
-      font-size: 34px;
-    }
+<style>
 
-    .container {
-      display: flex;
-      gap: 20px;
-      padding: 20px;
-      box-sizing: border-box;
-      height: 70vh;
-    }
+body{
+    margin:0;
+    font-family:Arial;
+    background:#f2f2f2;
+}
 
-    .team-box {
-      flex: 1;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.12);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-    }
+h1{
+    text-align:center;
+    margin:20px;
+}
 
-    .team-name {
-      font-size: 38px;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
+.container{
+    display:flex;
+    height:80vh;
+}
 
-    .point-label {
-      font-size: 24px;
-      color: #666;
-      margin-bottom: 10px;
-    }
+.team{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    background:white;
+    margin:10px;
+    border-radius:20px;
+    box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
 
-    .points {
-      font-size: 110px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
+.team h2{
+    font-size:40px;
+    margin-bottom:20px;
+}
 
-    .games-label {
-      font-size: 24px;
-      color: #666;
-      margin-bottom: 10px;
-    }
+.points{
+    font-size:120px;
+    font-weight:bold;
+}
 
-    .games {
-      font-size: 70px;
-      font-weight: bold;
-      margin-bottom: 30px;
-    }
+.games{
+    font-size:60px;
+    margin-top:10px;
+}
 
-    button {
-      font-size: 28px;
-      padding: 18px 32px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-    }
+button{
+    margin-top:25px;
+    font-size:26px;
+    padding:15px 30px;
+    border:none;
+    border-radius:12px;
+    cursor:pointer;
+}
 
-    .controls {
-      margin-bottom: 30px;
-    }
+.reset{
+    text-align:center;
+    margin-bottom:20px;
+}
 
-    .reset-btn {
-      background: #333;
-      color: white;
-      font-size: 24px;
-      padding: 16px 28px;
-    }
-
-    @media (max-width: 800px) {
-      .container {
-        flex-direction: column;
-        height: auto;
-      }
-
-      .points {
-        font-size: 80px;
-      }
-
-      .games {
-        font-size: 56px;
-      }
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <h1>Padel Counter</h1>
 
-  <div class="container">
-    <div class="team-box">
-      <div class="team-name">Team A</div>
-      <div class="point-label">Punkte</div>
-      <div class="points" id="pointsA">0</div>
-      <div class="games-label">Games</div>
-      <div class="games" id="gamesA">0</div>
-      <button onclick="addPoint('A')">Punkt für Team A</button>
-    </div>
+<h1>Padel Counter</h1>
 
-    <div class="team-box">
-      <div class="team-name">Team B</div>
-      <div class="point-label">Punkte</div>
-      <div class="points" id="pointsB">0</div>
-      <div class="games-label">Games</div>
-      <div class="games" id="gamesB">0</div>
-      <button onclick="addPoint('B')">Punkt für Team B</button>
-    </div>
-  </div>
+<div class="container">
 
-  <div class="controls">
-    <button class="reset-btn" onclick="resetMatch()">Reset</button>
-  </div>
+<div class="team">
+<h2>Team A</h2>
+<div class="points" id="pointsA">0</div>
+<div class="games" id="gamesA">Games: 0</div>
+<button onclick="point('A')">Punkt</button>
+</div>
 
-  <script>
-    const pointSteps = [0, 15, 30, 40];
+<div class="team">
+<h2>Team B</h2>
+<div class="points" id="pointsB">0</div>
+<div class="games" id="gamesB">Games: 0</div>
+<button onclick="point('B')">Punkt</button>
+</div>
 
-    let pointIndexA = 0;
-    let pointIndexB = 0;
-    let gamesA = 0;
-    let gamesB = 0;
+</div>
 
-    function render() {
-      document.getElementById("pointsA").textContent = pointSteps[pointIndexA];
-      document.getElementById("pointsB").textContent = pointSteps[pointIndexB];
-      document.getElementById("gamesA").textContent = gamesA;
-      document.getElementById("gamesB").textContent = gamesB;
-    }
+<div class="reset">
+<button onclick="reset()">Reset</button>
+</div>
 
-    function addPoint(team) {
-      if (team === "A") {
-        if (pointIndexA < 3) {
-          pointIndexA++;
-        } else {
-          gamesA++;
-          pointIndexA = 0;
-          pointIndexB = 0;
-        }
-      } else {
-        if (pointIndexB < 3) {
-          pointIndexB++;
-        } else {
-          gamesB++;
-          pointIndexA = 0;
-          pointIndexB = 0;
-        }
-      }
+<script>
 
-      render();
-    }
+let scoreSteps=[0,15,30,40]
 
-    function resetMatch() {
-      pointIndexA = 0;
-      pointIndexB = 0;
-      gamesA = 0;
-      gamesB = 0;
-      render();
-    }
+let pA=0
+let pB=0
+let gA=0
+let gB=0
 
-    render();
-  </script>
+function update(){
+document.getElementById("pointsA").innerText=scoreSteps[pA]
+document.getElementById("pointsB").innerText=scoreSteps[pB]
+document.getElementById("gamesA").innerText="Games: "+gA
+document.getElementById("gamesB").innerText="Games: "+gB
+}
+
+function point(team){
+
+if(team==="A"){
+if(pA<3){pA++}
+else{
+gA++
+pA=0
+pB=0
+}
+}
+
+if(team==="B"){
+if(pB<3){pB++}
+else{
+gB++
+pA=0
+pB=0
+}
+}
+
+update()
+}
+
+function reset(){
+pA=0
+pB=0
+gA=0
+gB=0
+update()
+}
+
+update()
+
+</script>
+
 </body>
 </html>
