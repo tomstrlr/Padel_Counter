@@ -1,315 +1,303 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Padel Counter</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f2f2f2;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Padel Counter</title>
 
-    h1 {
-      text-align: center;
-      margin: 20px;
-    }
+<style>
 
-    .container {
-      display: flex;
-      height: 72vh;
-    }
+body{
+margin:0;
+font-family:Arial;
+background:#f2f2f2;
+}
 
-    .team {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      background: white;
-      margin: 10px;
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
+.header{
+display:flex;
+justify-content:space-between;
+font-size:36px;
+font-weight:bold;
+padding:20px 40px;
+}
 
-    .team h2 {
-      font-size: 40px;
-      margin-bottom: 20px;
-    }
+.top-controls{
+text-align:center;
+margin-top:5px;
+}
 
-    .points {
-      font-size: 110px;
-      font-weight: bold;
-      min-height: 130px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+.reset-btn{
+font-size:26px;
+padding:14px 28px;
+border:none;
+border-radius:12px;
+background:#333;
+color:white;
+cursor:pointer;
+}
 
-    .games {
-      font-size: 60px;
-      margin-top: 10px;
-    }
+.history-box{
+margin:15px auto;
+width:90%;
+max-width:700px;
+background:white;
+border-radius:14px;
+box-shadow:0 4px 12px rgba(0,0,0,0.1);
+padding:15px;
+}
 
-    button {
-      margin-top: 20px;
-      font-size: 26px;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-    }
+.history-title{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+margin-bottom:10px;
+}
 
-    .top-controls {
-      text-align: center;
-      margin-top: 10px;
-      margin-bottom: 10px;
-    }
+.history-list{
+font-size:20px;
+}
 
-    .reset-btn {
-      background: #333;
-      color: white;
-    }
+.info{
+text-align:center;
+font-size:20px;
+margin:10px 0 20px 0;
+}
 
-    .history-box {
-      margin: 15px auto 10px auto;
-      width: 90%;
-      max-width: 700px;
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
-      padding: 14px 18px;
-      box-sizing: border-box;
-      text-align: left;
-    }
+.container{
+display:flex;
+height:60vh;
+}
 
-    .history-title {
-      font-size: 22px;
-      font-weight: bold;
-      margin-bottom: 10px;
-      text-align: center;
-    }
+.team{
+flex:1;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+background:white;
+margin:10px;
+border-radius:20px;
+box-shadow:0 4px 12px rgba(0,0,0,0.15);
+}
 
-    .history-list {
-      margin: 0;
-      padding-left: 24px;
-      font-size: 20px;
-      line-height: 1.5;
-    }
+.points{
+font-size:110px;
+font-weight:bold;
+min-height:120px;
+}
 
-    .info {
-      text-align: center;
-      font-size: 22px;
-      margin: 10px 20px 25px 20px;
-      color: #444;
-    }
-  </style>
+.games{
+font-size:60px;
+}
+
+button{
+margin-top:20px;
+font-size:26px;
+padding:14px 28px;
+border:none;
+border-radius:12px;
+cursor:pointer;
+}
+
+</style>
 </head>
+
 <body>
 
-  <h1>Padel Counter</h1>
+<div class="header">
+<div>Team A</div>
+<div>Team B</div>
+</div>
 
-  <div class="top-controls">
-    <button class="reset-btn" onclick="reset()">Reset</button>
-  </div>
+<div class="top-controls">
+<button class="reset-btn" onclick="reset()">Reset</button>
+</div>
 
-  <div class="history-box">
-    <div class="history-title">Letzte 6 Reset-Ergebnisse</div>
-    <ol class="history-list" id="resetHistoryList"></ol>
-  </div>
+<div class="history-box">
+<div class="history-title">Letzte Ergebnisse</div>
+<ol class="history-list" id="resetHistoryList"></ol>
+</div>
 
-  <div class="info">
-    Leertaste: 1x = Team A | 2x schnell = Team B | 1 Sekunde halten = letzter Punkt retour
-  </div>
+<div class="info">
+Leertaste: 1x = Team A | 2x schnell = Team B | 1 Sekunde halten = letzter Punkt retour
+</div>
 
-  <div class="container">
-    <div class="team">
-      <h2>Team A</h2>
-      <div class="points" id="pointsA">0</div>
-      <div class="games" id="gamesA">Games: 0</div>
-      <button onclick="point('A')">Punkt</button>
-    </div>
+<div class="container">
 
-    <div class="team">
-      <h2>Team B</h2>
-      <div class="points" id="pointsB">0</div>
-      <div class="games" id="gamesB">Games: 0</div>
-      <button onclick="point('B')">Punkt</button>
-    </div>
-  </div>
+<div class="team">
+<div class="points" id="pointsA">0</div>
+<div class="games" id="gamesA">0</div>
+<button onclick="point('A')">Punkt</button>
+</div>
 
-  <script>
-    let pA = 0;
-    let pB = 0;
-    let gA = 0;
-    let gB = 0;
+<div class="team">
+<div class="points" id="pointsB">0</div>
+<div class="games" id="gamesB">0</div>
+<button onclick="point('B')">Punkt</button>
+</div>
 
-    let history = [];
-    let resetHistory = JSON.parse(localStorage.getItem("resetHistory")) || [];
+</div>
 
-    function saveState() {
-      history.push({
-        pA: pA,
-        pB: pB,
-        gA: gA,
-        gB: gB
-      });
-    }
+<script>
 
-    function displayPoint(value) {
-      if (value === 0) return "0";
-      if (value === 1) return "15";
-      if (value === 2) return "30";
-      if (value === 3) return "40";
-      if (value === 4) return "Ad.";
-      return "0";
-    }
+let pA=0
+let pB=0
+let gA=0
+let gB=0
 
-    function update() {
-      document.getElementById("pointsA").innerText = displayPoint(pA);
-      document.getElementById("pointsB").innerText = displayPoint(pB);
-      document.getElementById("gamesA").innerText = "Games: " + gA;
-      document.getElementById("gamesB").innerText = "Games: " + gB;
-      renderResetHistory();
-    }
+let history=[]
+let resetHistory=JSON.parse(localStorage.getItem("resetHistory"))||[]
 
-    function winGame(team) {
-      if (team === "A") {
-        gA++;
-      } else {
-        gB++;
-      }
-      pA = 0;
-      pB = 0;
-    }
+function saveState(){
+history.push({pA,pB,gA,gB})
+}
 
-    function point(team) {
-      saveState();
+function displayPoint(v){
+if(v===0)return"0"
+if(v===1)return"15"
+if(v===2)return"30"
+if(v===3)return"40"
+if(v===4)return"Ad."
+}
 
-      if (team === "A") {
-        if (pA <= 2) {
-          pA++;
-        } else if (pA === 3 && pB <= 2) {
-          winGame("A");
-        } else if (pA === 3 && pB === 3) {
-          pA = 4;
-          pB = 3;
-        } else if (pA === 3 && pB === 4) {
-          pA = 3;
-          pB = 3;
-        } else if (pA === 4) {
-          winGame("A");
-        }
-      }
+function update(){
+document.getElementById("pointsA").innerText=displayPoint(pA)
+document.getElementById("pointsB").innerText=displayPoint(pB)
+document.getElementById("gamesA").innerText=gA
+document.getElementById("gamesB").innerText=gB
+renderHistory()
+}
 
-      if (team === "B") {
-        if (pB <= 2) {
-          pB++;
-        } else if (pB === 3 && pA <= 2) {
-          winGame("B");
-        } else if (pB === 3 && pA === 3) {
-          pB = 4;
-          pA = 3;
-        } else if (pB === 3 && pA === 4) {
-          pA = 3;
-          pB = 3;
-        } else if (pB === 4) {
-          winGame("B");
-        }
-      }
+function winGame(team){
+if(team==="A"){gA++}
+else{gB++}
+pA=0
+pB=0
+}
 
-      update();
-    }
+function point(team){
 
-    function undo() {
-      if (history.length === 0) return;
+saveState()
 
-      const last = history.pop();
-      pA = last.pA;
-      pB = last.pB;
-      gA = last.gA;
-      gB = last.gB;
-      update();
-    }
+if(team==="A"){
+if(pA<=2){pA++}
+else if(pA===3&&pB<=2){winGame("A")}
+else if(pA===3&&pB===3){pA=4;pB=3}
+else if(pA===3&&pB===4){pA=3;pB=3}
+else if(pA===4){winGame("A")}
+}
 
-    function reset() {
-      const resultText = "Team A: " + gA + " Games | Team B: " + gB + " Games";
+if(team==="B"){
+if(pB<=2){pB++}
+else if(pB===3&&pA<=2){winGame("B")}
+else if(pB===3&&pA===3){pB=4;pA=3}
+else if(pB===3&&pA===4){pA=3;pB=3}
+else if(pB===4){winGame("B")}
+}
 
-      if (gA !== 0 || gB !== 0 || pA !== 0 || pB !== 0) {
-        resetHistory.unshift(resultText);
-        resetHistory = resetHistory.slice(0, 6);
-        localStorage.setItem("resetHistory", JSON.stringify(resetHistory));
-      }
+update()
 
-      pA = 0;
-      pB = 0;
-      gA = 0;
-      gB = 0;
-      history = [];
-      update();
-    }
+}
 
-    function renderResetHistory() {
-      const list = document.getElementById("resetHistoryList");
-      list.innerHTML = "";
+function undo(){
+if(history.length===0)return
+const last=history.pop()
+pA=last.pA
+pB=last.pB
+gA=last.gA
+gB=last.gB
+update()
+}
 
-      resetHistory.forEach(entry => {
-        const li = document.createElement("li");
-        li.textContent = entry;
-        list.appendChild(li);
-      });
-    }
+function reset(){
 
-    update();
+const result="Team A - "+gA+" | "+gB+" - Team B"
 
-    let pressCount = 0;
-    let clickTimer = null;
-    let holdTimer = null;
-    let holdTriggered = false;
-    let spaceIsDown = false;
+if(gA!==0||gB!==0){
+resetHistory.unshift(result)
+resetHistory=resetHistory.slice(0,6)
+localStorage.setItem("resetHistory",JSON.stringify(resetHistory))
+}
 
-    document.addEventListener("keydown", function(e) {
-      if (e.code !== "Space") return;
-      e.preventDefault();
+pA=0
+pB=0
+gA=0
+gB=0
+history=[]
 
-      if (spaceIsDown) return;
-      spaceIsDown = true;
-      holdTriggered = false;
+update()
 
-      holdTimer = setTimeout(function() {
-        holdTriggered = true;
-        pressCount = 0;
-        clearTimeout(clickTimer);
-        undo();
-      }, 1000);
-    });
+}
 
-    document.addEventListener("keyup", function(e) {
-      if (e.code !== "Space") return;
-      e.preventDefault();
+function renderHistory(){
 
-      spaceIsDown = false;
-      clearTimeout(holdTimer);
+const list=document.getElementById("resetHistoryList")
+list.innerHTML=""
 
-      if (holdTriggered) {
-        holdTriggered = false;
-        return;
-      }
+resetHistory.forEach((entry,index)=>{
+const li=document.createElement("li")
+li.textContent=(index+1)+". "+entry
+list.appendChild(li)
+})
 
-      pressCount++;
+}
 
-      clearTimeout(clickTimer);
-      clickTimer = setTimeout(function() {
-        if (pressCount === 1) {
-          point("A");
-        } else if (pressCount === 2) {
-          point("B");
-        }
-        pressCount = 0;
-      }, 300);
-    });
-  </script>
+update()
+
+let pressCount=0
+let clickTimer=null
+let holdTimer=null
+let holdTriggered=false
+let spaceDown=false
+
+document.addEventListener("keydown",function(e){
+
+if(e.code!=="Space")return
+e.preventDefault()
+
+if(spaceDown)return
+spaceDown=true
+
+holdTriggered=false
+
+holdTimer=setTimeout(function(){
+holdTriggered=true
+pressCount=0
+clearTimeout(clickTimer)
+undo()
+},1000)
+
+})
+
+document.addEventListener("keyup",function(e){
+
+if(e.code!=="Space")return
+e.preventDefault()
+
+spaceDown=false
+clearTimeout(holdTimer)
+
+if(holdTriggered){
+holdTriggered=false
+return
+}
+
+pressCount++
+
+clearTimeout(clickTimer)
+
+clickTimer=setTimeout(function(){
+
+if(pressCount===1){point("A")}
+else if(pressCount===2){point("B")}
+
+pressCount=0
+
+},300)
+
+})
+
+</script>
 
 </body>
 </html>
