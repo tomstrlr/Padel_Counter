@@ -18,7 +18,7 @@
 
     .container {
       display: flex;
-      height: 80vh;
+      height: 72vh;
     }
 
     .team {
@@ -52,15 +52,8 @@
       margin-top: 10px;
     }
 
-    .info {
-      text-align: center;
-      font-size: 22px;
-      margin: 10px 20px 20px 20px;
-      color: #444;
-    }
-
     button {
-      margin-top: 25px;
+      margin-top: 20px;
       font-size: 26px;
       padding: 15px 30px;
       border: none;
@@ -68,15 +61,67 @@
       cursor: pointer;
     }
 
-    .reset {
+    .top-controls {
       text-align: center;
-      margin-bottom: 20px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .reset-btn {
+      background: #333;
+      color: white;
+    }
+
+    .history-box {
+      margin: 15px auto 10px auto;
+      width: 90%;
+      max-width: 700px;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.10);
+      padding: 14px 18px;
+      box-sizing: border-box;
+      text-align: left;
+    }
+
+    .history-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .history-list {
+      margin: 0;
+      padding-left: 24px;
+      font-size: 20px;
+      line-height: 1.5;
+    }
+
+    .info {
+      text-align: center;
+      font-size: 22px;
+      margin: 10px 20px 25px 20px;
+      color: #444;
     }
   </style>
 </head>
 <body>
 
   <h1>Padel Counter</h1>
+
+  <div class="top-controls">
+    <button class="reset-btn" onclick="reset()">Reset</button>
+  </div>
+
+  <div class="history-box">
+    <div class="history-title">Letzte 6 Reset-Ergebnisse</div>
+    <ol class="history-list" id="resetHistoryList"></ol>
+  </div>
+
+  <div class="info">
+    Leertaste: 1x = Team A | 2x schnell = Team B | 1 Sekunde halten = letzter Punkt retour
+  </div>
 
   <div class="container">
     <div class="team">
@@ -94,14 +139,6 @@
     </div>
   </div>
 
-  <div class="info">
-    Leertaste: 1x = Team A | 2x schnell = Team B | 1,5 s halten = letzter Punkt retour
-  </div>
-
-  <div class="reset">
-    <button onclick="reset()">Reset</button>
-  </div>
-
   <script>
     let pA = 0;
     let pB = 0;
@@ -109,6 +146,7 @@
     let gB = 0;
 
     let history = [];
+    let resetHistory = JSON.parse(localStorage.getItem("resetHistory")) || [];
 
     function saveState() {
       history.push({
@@ -124,7 +162,7 @@
       if (value === 1) return "15";
       if (value === 2) return "30";
       if (value === 3) return "40";
-      if (value === 4) return "Vorteil";
+      if (value === 4) return "Ad.";
       return "0";
     }
 
@@ -133,6 +171,7 @@
       document.getElementById("pointsB").innerText = displayPoint(pB);
       document.getElementById("gamesA").innerText = "Games: " + gA;
       document.getElementById("gamesB").innerText = "Games: " + gB;
+      renderResetHistory();
     }
 
     function winGame(team) {
@@ -195,12 +234,31 @@
     }
 
     function reset() {
+      const resultText = "Team A: " + gA + " Games | Team B: " + gB + " Games";
+
+      if (gA !== 0 || gB !== 0 || pA !== 0 || pB !== 0) {
+        resetHistory.unshift(resultText);
+        resetHistory = resetHistory.slice(0, 6);
+        localStorage.setItem("resetHistory", JSON.stringify(resetHistory));
+      }
+
       pA = 0;
       pB = 0;
       gA = 0;
       gB = 0;
       history = [];
       update();
+    }
+
+    function renderResetHistory() {
+      const list = document.getElementById("resetHistoryList");
+      list.innerHTML = "";
+
+      resetHistory.forEach(entry => {
+        const li = document.createElement("li");
+        li.textContent = entry;
+        list.appendChild(li);
+      });
     }
 
     update();
@@ -224,7 +282,7 @@
         pressCount = 0;
         clearTimeout(clickTimer);
         undo();
-      }, 1500);
+      }, 1000);
     });
 
     document.addEventListener("keyup", function(e) {
