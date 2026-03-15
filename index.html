@@ -39,8 +39,12 @@
     }
 
     .points {
-      font-size: 120px;
+      font-size: 110px;
       font-weight: bold;
+      min-height: 130px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .games {
@@ -99,8 +103,6 @@
   </div>
 
   <script>
-    const scoreSteps = [0, 15, 30, 40];
-
     let pA = 0;
     let pB = 0;
     let gA = 0;
@@ -117,33 +119,64 @@
       });
     }
 
+    function displayPoint(value) {
+      if (value === 0) return "0";
+      if (value === 1) return "15";
+      if (value === 2) return "30";
+      if (value === 3) return "40";
+      if (value === 4) return "Vorteil";
+      return "0";
+    }
+
     function update() {
-      document.getElementById("pointsA").innerText = scoreSteps[pA];
-      document.getElementById("pointsB").innerText = scoreSteps[pB];
+      document.getElementById("pointsA").innerText = displayPoint(pA);
+      document.getElementById("pointsB").innerText = displayPoint(pB);
       document.getElementById("gamesA").innerText = "Games: " + gA;
       document.getElementById("gamesB").innerText = "Games: " + gB;
+    }
+
+    function winGame(team) {
+      if (team === "A") {
+        gA++;
+      } else {
+        gB++;
+      }
+      pA = 0;
+      pB = 0;
     }
 
     function point(team) {
       saveState();
 
       if (team === "A") {
-        if (pA < 3) {
+        if (pA <= 2) {
           pA++;
-        } else {
-          gA++;
-          pA = 0;
-          pB = 0;
+        } else if (pA === 3 && pB <= 2) {
+          winGame("A");
+        } else if (pA === 3 && pB === 3) {
+          pA = 4;
+          pB = 3;
+        } else if (pA === 3 && pB === 4) {
+          pA = 3;
+          pB = 3;
+        } else if (pA === 4) {
+          winGame("A");
         }
       }
 
       if (team === "B") {
-        if (pB < 3) {
+        if (pB <= 2) {
           pB++;
-        } else {
-          gB++;
-          pA = 0;
-          pB = 0;
+        } else if (pB === 3 && pA <= 2) {
+          winGame("B");
+        } else if (pB === 3 && pA === 3) {
+          pB = 4;
+          pA = 3;
+        } else if (pB === 3 && pA === 4) {
+          pA = 3;
+          pB = 3;
+        } else if (pB === 4) {
+          winGame("B");
         }
       }
 
