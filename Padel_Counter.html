@@ -1,164 +1,27 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Padel Counter</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
-      padding: 20px;
-      background: #f4f4f4;
-      text-align: center;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
     }
 
     h1 {
-      margin-bottom: 20px;
-    }
-
-    .wrapper {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .team {
-      background: white;
-      border-radius: 18px;
-      padding: 20px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .team h2 {
-      font-size: 36px;
-      margin: 10px 0 20px;
-    }
-
-    .score {
-      font-size: 90px;
-      font-weight: bold;
-      margin: 20px 0;
-    }
-
-    button {
-      font-size: 28px;
-      padding: 18px 28px;
-      margin: 10px;
-      border: none;
-      border-radius: 14px;
-      cursor: pointer;
-    }
-
-    .point-btn {
-      width: 90%;
-      min-height: 90px;
-    }
-
-    .controls {
-      margin-top: 25px;
-    }
-
-    .info {
-      margin-top: 20px;
-      font-size: 20px;
-      color: #444;
-    }
-
-    @media (max-width: 700px) {
-      .wrapper {
-        grid-template-columns: 1fr;
-      }
-
-      .score {
-        font-size: 72px;
-      }
-
-      button {
-        font-size: 24px;
-      }
+      font-size: 60px;
+      margin: 0;
     }
   </style>
 </head>
 <body>
   <h1>Padel Counter</h1>
-
-  <div class="wrapper">
-    <div class="team">
-      <h2>Team C</h2>
-      <div class="score" id="scoreA">0</div>
-      <button class="point-btn" onclick="addPoint('A')">Punkt für Team A</button>
-    </div>
-
-    <div class="team">
-      <h2>Team D</h2>
-      <div class="score" id="scoreB">0</div>
-      <button class="point-btn" onclick="addPoint('B')">Punkt für Team B</button>
-    </div>
-  </div>
-
-  <div class="controls">
-    <button onclick="undo()">Undo</button>
-    <button onclick="resetMatch()">Reset</button>
-  </div>
-
-  <div class="info" id="statusInfo">
-    Tastatur-Test: A = Team A, L = Team B
-  </div>
-
-  <script>
-    let state = JSON.parse(localStorage.getItem("padelCounterState")) || {
-      scoreA: 0,
-      scoreB: 0,
-      history: []
-    };
-
-    function render() {
-      document.getElementById("scoreA").textContent = state.scoreA;
-      document.getElementById("scoreB").textContent = state.scoreB;
-      localStorage.setItem("padelCounterState", JSON.stringify(state));
-    }
-
-    function addPoint(team) {
-      state.history.push({ scoreA: state.scoreA, scoreB: state.scoreB });
-
-      if (team === "A") {
-        state.scoreA++;
-      } else {
-        state.scoreB++;
-      }
-
-      render();
-    }
-
-    function undo() {
-      if (state.history.length === 0) return;
-      const prev = state.history.pop();
-      state.scoreA = prev.scoreA;
-      state.scoreB = prev.scoreB;
-      render();
-    }
-
-    function resetMatch() {
-      state.history.push({ scoreA: state.scoreA, scoreB: state.scoreB });
-      state.scoreA = 0;
-      state.scoreB = 0;
-      render();
-    }
-
-    document.addEventListener("keydown", function(e) {
-      if (e.key === "a" || e.key === "A") {
-        addPoint("A");
-      }
-      if (e.key === "l" || e.key === "L") {
-        addPoint("B");
-      }
-    });
-
-    render();
-  </script>
 </body>
 </html>
