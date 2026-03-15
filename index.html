@@ -1,148 +1,224 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Padel Counter</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Padel Counter</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+    }
 
-<style>
+    h1 {
+      text-align: center;
+      margin: 20px;
+    }
 
-body{
-    margin:0;
-    font-family:Arial;
-    background:#f2f2f2;
-}
+    .container {
+      display: flex;
+      height: 80vh;
+    }
 
-h1{
-    text-align:center;
-    margin:20px;
-}
+    .team {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: white;
+      margin: 10px;
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
 
-.container{
-    display:flex;
-    height:80vh;
-}
+    .team h2 {
+      font-size: 40px;
+      margin-bottom: 20px;
+    }
 
-.team{
-    flex:1;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    background:white;
-    margin:10px;
-    border-radius:20px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.15);
-}
+    .points {
+      font-size: 120px;
+      font-weight: bold;
+    }
 
-.team h2{
-    font-size:40px;
-    margin-bottom:20px;
-}
+    .games {
+      font-size: 60px;
+      margin-top: 10px;
+    }
 
-.points{
-    font-size:120px;
-    font-weight:bold;
-}
+    .info {
+      text-align: center;
+      font-size: 22px;
+      margin: 10px 20px 20px 20px;
+      color: #444;
+    }
 
-.games{
-    font-size:60px;
-    margin-top:10px;
-}
+    button {
+      margin-top: 25px;
+      font-size: 26px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+    }
 
-button{
-    margin-top:25px;
-    font-size:26px;
-    padding:15px 30px;
-    border:none;
-    border-radius:12px;
-    cursor:pointer;
-}
-
-.reset{
-    text-align:center;
-    margin-bottom:20px;
-}
-
-</style>
+    .reset {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+  </style>
 </head>
-
 <body>
 
-<h1>Padel Counter</h1>
+  <h1>Padel Counter</h1>
 
-<div class="container">
+  <div class="container">
+    <div class="team">
+      <h2>Team A</h2>
+      <div class="points" id="pointsA">0</div>
+      <div class="games" id="gamesA">Games: 0</div>
+      <button onclick="point('A')">Punkt</button>
+    </div>
 
-<div class="team">
-<h2>Team A</h2>
-<div class="points" id="pointsA">0</div>
-<div class="games" id="gamesA">Games: 0</div>
-<button onclick="point('A')">Punkt</button>
-</div>
+    <div class="team">
+      <h2>Team B</h2>
+      <div class="points" id="pointsB">0</div>
+      <div class="games" id="gamesB">Games: 0</div>
+      <button onclick="point('B')">Punkt</button>
+    </div>
+  </div>
 
-<div class="team">
-<h2>Team B</h2>
-<div class="points" id="pointsB">0</div>
-<div class="games" id="gamesB">Games: 0</div>
-<button onclick="point('B')">Punkt</button>
-</div>
+  <div class="info">
+    Leertaste: 1x = Team A | 2x schnell = Team B | 1,5 s halten = letzter Punkt retour
+  </div>
 
-</div>
+  <div class="reset">
+    <button onclick="reset()">Reset</button>
+  </div>
 
-<div class="reset">
-<button onclick="reset()">Reset</button>
-</div>
+  <script>
+    const scoreSteps = [0, 15, 30, 40];
 
-<script>
+    let pA = 0;
+    let pB = 0;
+    let gA = 0;
+    let gB = 0;
 
-let scoreSteps=[0,15,30,40]
+    let history = [];
 
-let pA=0
-let pB=0
-let gA=0
-let gB=0
+    function saveState() {
+      history.push({
+        pA: pA,
+        pB: pB,
+        gA: gA,
+        gB: gB
+      });
+    }
 
-function update(){
-document.getElementById("pointsA").innerText=scoreSteps[pA]
-document.getElementById("pointsB").innerText=scoreSteps[pB]
-document.getElementById("gamesA").innerText="Games: "+gA
-document.getElementById("gamesB").innerText="Games: "+gB
-}
+    function update() {
+      document.getElementById("pointsA").innerText = scoreSteps[pA];
+      document.getElementById("pointsB").innerText = scoreSteps[pB];
+      document.getElementById("gamesA").innerText = "Games: " + gA;
+      document.getElementById("gamesB").innerText = "Games: " + gB;
+    }
 
-function point(team){
+    function point(team) {
+      saveState();
 
-if(team==="A"){
-if(pA<3){pA++}
-else{
-gA++
-pA=0
-pB=0
-}
-}
+      if (team === "A") {
+        if (pA < 3) {
+          pA++;
+        } else {
+          gA++;
+          pA = 0;
+          pB = 0;
+        }
+      }
 
-if(team==="B"){
-if(pB<3){pB++}
-else{
-gB++
-pA=0
-pB=0
-}
-}
+      if (team === "B") {
+        if (pB < 3) {
+          pB++;
+        } else {
+          gB++;
+          pA = 0;
+          pB = 0;
+        }
+      }
 
-update()
-}
+      update();
+    }
 
-function reset(){
-pA=0
-pB=0
-gA=0
-gB=0
-update()
-}
+    function undo() {
+      if (history.length === 0) return;
 
-update()
+      const last = history.pop();
+      pA = last.pA;
+      pB = last.pB;
+      gA = last.gA;
+      gB = last.gB;
+      update();
+    }
 
-</script>
+    function reset() {
+      pA = 0;
+      pB = 0;
+      gA = 0;
+      gB = 0;
+      history = [];
+      update();
+    }
+
+    update();
+
+    let pressCount = 0;
+    let clickTimer = null;
+    let holdTimer = null;
+    let holdTriggered = false;
+    let spaceIsDown = false;
+
+    document.addEventListener("keydown", function(e) {
+      if (e.code !== "Space") return;
+      e.preventDefault();
+
+      if (spaceIsDown) return;
+      spaceIsDown = true;
+      holdTriggered = false;
+
+      holdTimer = setTimeout(function() {
+        holdTriggered = true;
+        pressCount = 0;
+        clearTimeout(clickTimer);
+        undo();
+      }, 1500);
+    });
+
+    document.addEventListener("keyup", function(e) {
+      if (e.code !== "Space") return;
+      e.preventDefault();
+
+      spaceIsDown = false;
+      clearTimeout(holdTimer);
+
+      if (holdTriggered) {
+        holdTriggered = false;
+        return;
+      }
+
+      pressCount++;
+
+      clearTimeout(clickTimer);
+      clickTimer = setTimeout(function() {
+        if (pressCount === 1) {
+          point("A");
+        } else if (pressCount === 2) {
+          point("B");
+        }
+        pressCount = 0;
+      }, 300);
+    });
+  </script>
 
 </body>
 </html>
