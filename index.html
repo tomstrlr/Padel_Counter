@@ -19,7 +19,7 @@ h1{
 
 .container{
   display:flex;
-  height:65vh;
+  height:75vh;
 }
 
 .team{
@@ -30,7 +30,7 @@ h1{
   align-items:center;
   background:white;
   margin:10px;
-  border-radius:10px;
+  border-radius:20px;
   box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 
@@ -40,59 +40,78 @@ h1{
 }
 
 .serving{
-  font-size:45px;
+  font-size:24px;
   color:red;
   font-weight:bold;
-  min-height:28px;
+  min-height:30px;
   margin-bottom:10px;
 }
 
 .points{
-  font-size:550px;
+  font-size:340px;
   font-weight:bold;
-  min-height:220px;
+  min-height:320px;
   display:flex;
   align-items:center;
   justify-content:center;
 }
 
 .games-label{
-  font-size:40px;
+  font-size:24px;
   color:#555;
   margin-top:6px;
 }
 
 .games{
-  font-size:120px;
+  font-size:60px;
   margin-top:6px;
 }
 
-button{
-  margin-top:15px;
-  font-size:24px;
-  padding:12px 25px;
-  border:none;
-  border-radius:10px;
-  cursor:pointer;
-}
-
 .bottom-block{
-  text-align:center;
   margin:20px auto;
   width:90%;
-  max-width:700px;
+  max-width:1000px;
+}
+
+.controls-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:20px;
+}
+
+.left-controls{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
 }
 
 .top-buttons{
   display:flex;
-  justify-content:center;
   gap:20px;
-  margin-bottom:20px;
 }
 
 .control-btn{
   background:#333;
   color:white;
+  font-size:22px;
+  padding:12px 25px;
+  border:none;
+  border-radius:10px;
+}
+
+.point-buttons{
+  display:flex;
+  gap:20px;
+}
+
+.point-btn{
+  background:#007bff;
+  color:white;
+  font-size:26px;
+  padding:16px 30px;
+  border:none;
+  border-radius:14px;
 }
 
 .history-box{
@@ -100,7 +119,7 @@ button{
   border-radius:14px;
   box-shadow:0 4px 12px rgba(0,0,0,0.10);
   padding:14px;
-  margin-bottom:15px;
+  width:300px;
 }
 
 .history-title{
@@ -116,6 +135,8 @@ button{
 }
 
 .info{
+  text-align:center;
+  margin-top:20px;
   font-size:20px;
   color:#444;
 }
@@ -123,6 +144,8 @@ button{
 </head>
 
 <body>
+
+<h1>Padel Counter</h1>
 
 <div class="container">
 
@@ -132,7 +155,6 @@ button{
     <div class="points" id="pointsA">0</div>
     <div class="games-label">Games</div>
     <div class="games" id="gamesA">0</div>
-    <button onclick="point('A')">Punkt</button>
   </div>
 
   <div class="team">
@@ -141,21 +163,33 @@ button{
     <div class="points" id="pointsB">0</div>
     <div class="games-label">Games</div>
     <div class="games" id="gamesB">0</div>
-    <button onclick="point('B')">Punkt</button>
   </div>
 
 </div>
 
 <div class="bottom-block">
 
-  <div class="top-buttons">
-    <button class="control-btn" onclick="reset()">Reset</button>
-    <button class="control-btn" onclick="manualServe()">Change Serve</button>
-  </div>
+  <div class="controls-row">
 
-  <div class="history-box">
-    <div class="history-title">Letzte Ergebnisse</div>
-    <ol class="history-list" id="resetHistoryList"></ol>
+    <div class="left-controls">
+
+      <div class="top-buttons">
+        <button class="control-btn" onclick="reset()">Reset</button>
+        <button class="control-btn" onclick="manualServe()">Change Serve</button>
+      </div>
+
+      <div class="point-buttons">
+        <button class="point-btn" onclick="point('A')">Team A Punkt</button>
+        <button class="point-btn" onclick="point('B')">Team B Punkt</button>
+      </div>
+
+    </div>
+
+    <div class="history-box">
+      <div class="history-title">Letzte Ergebnisse</div>
+      <ol class="history-list" id="resetHistoryList"></ol>
+    </div>
+
   </div>
 
   <div class="info">
@@ -185,10 +219,10 @@ function displayPoint(v){
 
 function getServing(){
   switch(serveIndex % 4){
-    case 0: return {team:"A", text:"Aufschlag – rechter Spieler"};
-    case 1: return {team:"B", text:"Aufschlag – rechter Spieler"};
-    case 2: return {team:"A", text:"Aufschlag – linker Spieler"};
-    case 3: return {team:"B", text:"Aufschlag – linker Spieler"};
+    case 0: return {team:"A", text:"Aufschlag rechts"};
+    case 1: return {team:"B", text:"Aufschlag rechts"};
+    case 2: return {team:"A", text:"Aufschlag links"};
+    case 3: return {team:"B", text:"Aufschlag links"};
   }
 }
 
