@@ -34,26 +34,38 @@ h1{
   box-shadow:0 4px 12px rgba(0,0,0,0.15);
 }
 
-.team h2{
-  font-size:40px;
-  margin-bottom:12px;
-}
-
-.serving{
-  font-size:24px;
-  color:red;
-  font-weight:bold;
-  min-height:30px;
-  margin-bottom:10px;
-}
-
 .points{
-  font-size:340px;
-  font-weight:bold;
-  min-height:320px;
+  position:relative;
+  width:100%;
+  min-height:500px;
   display:flex;
   align-items:center;
   justify-content:center;
+}
+
+.point-value{
+  font-size:340px;
+  font-weight:bold;
+  line-height:1;
+}
+
+.team-label{
+  position:absolute;
+  top:15px;
+  left:20px;
+  font-size:40px;
+  font-weight:bold;
+}
+
+.serving{
+  position:absolute;
+  top:15px;
+  right:20px;
+  font-size:24px;
+  color:red;
+  font-weight:bold;
+  text-align:right;
+  min-height:30px;
 }
 
 .games-label{
@@ -145,22 +157,24 @@ h1{
 
 <body>
 
-<h1>Padel Counter</h1>
-
 <div class="container">
 
   <div class="team">
-    <h2>Team A</h2>
-    <div class="serving" id="servingA"></div>
-    <div class="points" id="pointsA">0</div>
+    <div class="points">
+      <div class="team-label">Team A</div>
+      <div class="serving" id="servingA"></div>
+      <div class="point-value" id="pointsA">0</div>
+    </div>
     <div class="games-label">Games</div>
     <div class="games" id="gamesA">0</div>
   </div>
 
   <div class="team">
-    <h2>Team B</h2>
-    <div class="serving" id="servingB"></div>
-    <div class="points" id="pointsB">0</div>
+    <div class="points">
+      <div class="team-label">Team B</div>
+      <div class="serving" id="servingB"></div>
+      <div class="point-value" id="pointsB">0</div>
+    </div>
     <div class="games-label">Games</div>
     <div class="games" id="gamesB">0</div>
   </div>
