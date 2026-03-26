@@ -2,8 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Padel Counter</title>
+<title>Padel Scoreboard</title>
 
 <style>
 body{
@@ -65,30 +64,23 @@ h1{
   color:red;
   font-weight:bold;
   text-align:right;
-  min-height:30px;
-}
-
-.games-label{
-  font-size:24px;
-  color:#555;
-  margin-top:6px;
+  min-height:60px;
+  max-width:260px;
 }
 
 .games{
   font-size:60px;
-  margin-top:6px;
+  margin-top:10px;
 }
 
 .bottom-block{
   margin:20px auto;
   width:90%;
-  max-width:1000px;
+  max-width:1100px;
 }
 
 .controls-row{
   display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
   gap:20px;
 }
 
@@ -96,6 +88,7 @@ h1{
   display:flex;
   flex-direction:column;
   gap:20px;
+  flex:1;
 }
 
 .top-buttons{
@@ -103,27 +96,24 @@ h1{
   gap:20px;
 }
 
-.control-btn{
-  background:#333;
-  color:white;
-  font-size:22px;
-  padding:12px 25px;
-  border:none;
-  border-radius:10px;
-}
-
 .point-buttons{
   display:flex;
   gap:20px;
 }
 
+.control-btn,
 .point-btn{
-  background:#007bff;
+  flex:1;
+  background:#333;
   color:white;
-  font-size:26px;
-  padding:16px 30px;
+  font-size:30px;
+  padding:25px;
   border:none;
   border-radius:14px;
+}
+
+.point-btn{
+  background:#007bff;
 }
 
 .history-box{
@@ -131,7 +121,9 @@ h1{
   border-radius:14px;
   box-shadow:0 4px 12px rgba(0,0,0,0.10);
   padding:14px;
-  width:300px;
+  width:350px;
+  max-height:450px;
+  overflow-y:auto;
 }
 
 .history-title{
@@ -142,240 +134,186 @@ h1{
 
 .history-list{
   font-size:20px;
-  text-align:left;
-  padding-left:25px;
-}
-
-.info{
-  text-align:center;
-  margin-top:20px;
-  font-size:20px;
-  color:#444;
+  padding-left:20px;
 }
 </style>
 </head>
 
 <body>
 
+<h1>Padel Scoreboard</h1>
+
 <div class="container">
 
   <div class="team">
     <div class="points">
       <div class="team-label">Team A</div>
-      <div class="serving" id="servingA"></div>
+      <div class="serving" id="serveA"></div>
       <div class="point-value" id="pointsA">0</div>
     </div>
-    <div class="games-label">Games</div>
     <div class="games" id="gamesA">0</div>
   </div>
 
   <div class="team">
     <div class="points">
       <div class="team-label">Team B</div>
-      <div class="serving" id="servingB"></div>
+      <div class="serving" id="serveB"></div>
       <div class="point-value" id="pointsB">0</div>
     </div>
-    <div class="games-label">Games</div>
     <div class="games" id="gamesB">0</div>
   </div>
 
 </div>
 
 <div class="bottom-block">
-
   <div class="controls-row">
 
     <div class="left-controls">
-
       <div class="top-buttons">
-        <button class="control-btn" onclick="reset()">Reset</button>
-        <button class="control-btn" onclick="manualServe()">Change Serve</button>
+        <button class="control-btn" onclick="resetGame()">Reset</button>
+        <button class="control-btn" onclick="changeServe()">Change Serve</button>
       </div>
 
       <div class="point-buttons">
         <button class="point-btn" onclick="point('A')">Team A Punkt</button>
         <button class="point-btn" onclick="point('B')">Team B Punkt</button>
       </div>
-
     </div>
 
     <div class="history-box">
       <div class="history-title">Letzte Ergebnisse</div>
-      <ol class="history-list" id="resetHistoryList"></ol>
+      <ol id="history" class="history-list"></ol>
     </div>
 
   </div>
-
-  <div class="info">
-    Leertaste: 1x = Team A | 2x schnell = Team B | 1 Sekunde halten = letzter Punkt retour
-  </div>
-
 </div>
 
 <script>
-let pA = 0;
-let pB = 0;
-let gA = 0;
-let gB = 0;
+let scoreA = 0;
+let scoreB = 0;
+let gamesA = 0;
+let gamesB = 0;
 
+const points = [0, 15, 30, 40];
+
+/*
+  Aufschlag-Reihenfolge:
+  0 = Team A rechter Spieler
+  1 = Team B rechter Spieler
+  2 = Team A linker Spieler
+  3 = Team B linker Spieler
+*/
 let serveIndex = 0;
 
-let history = [];
-let resetHistory = JSON.parse(localStorage.getItem("resetHistory")) || [];
-
-function saveState(){
-  history.push({pA,pB,gA,gB,serveIndex});
+function getServeInfo() {
+  const serveOrder = [
+    { team: "A", text: "Aufschlag rechter Spieler" },
+    { team: "B", text: "Aufschlag rechter Spieler" },
+    { team: "A", text: "Aufschlag linker Spieler" },
+    { team: "B", text: "Aufschlag linker Spieler" }
+  ];
+  return serveOrder[serveIndex];
 }
 
-function displayPoint(v){
-  return ["0","15","30","40","Ad."][v] || "0";
+function updateDisplay() {
+  document.getElementById("pointsA").innerText = getPointText(scoreA, scoreB, "A");
+  document.getElementById("pointsB").innerText = getPointText(scoreB, scoreA, "B");
+
+  document.getElementById("gamesA").innerText = gamesA;
+  document.getElementById("gamesB").innerText = gamesB;
+
+  const serveInfo = getServeInfo();
+
+  document.getElementById("serveA").innerText =
+    serveInfo.team === "A" ? serveInfo.text : "";
+
+  document.getElementById("serveB").innerText =
+    serveInfo.team === "B" ? serveInfo.text : "";
 }
 
-function getServing(){
-  switch(serveIndex % 4){
-    case 0: return {team:"A", text:"Aufschlag rechts"};
-    case 1: return {team:"B", text:"Aufschlag rechts"};
-    case 2: return {team:"A", text:"Aufschlag links"};
-    case 3: return {team:"B", text:"Aufschlag links"};
+function getPointText(ownScore, otherScore) {
+  if (ownScore >= 3 && otherScore >= 3) {
+    if (ownScore === otherScore) return "40";
+    if (ownScore > otherScore) return "AD";
+    return "40";
   }
+  return points[ownScore];
 }
 
-function update(){
-  document.getElementById("pointsA").innerText = displayPoint(pA);
-  document.getElementById("pointsB").innerText = displayPoint(pB);
-  document.getElementById("gamesA").innerText = gA;
-  document.getElementById("gamesB").innerText = gB;
+function point(team) {
+  if (team === "A") {
+    scoreA++;
+  } else {
+    scoreB++;
+  }
 
-  const s = getServing();
+  if (scoreA >= 4 && scoreA - scoreB >= 2) {
+    gamesA++;
+    newGame();
+  }
 
-  document.getElementById("servingA").innerText = s.team==="A"?s.text:"";
-  document.getElementById("servingB").innerText = s.team==="B"?s.text:"";
+  if (scoreB >= 4 && scoreB - scoreA >= 2) {
+    gamesB++;
+    newGame();
+  }
 
-  renderHistory();
+  updateDisplay();
 }
 
-function nextServe(){
+function newGame() {
+  scoreA = 0;
+  scoreB = 0;
+
   serveIndex++;
-}
-
-function winGame(team){
-  if(team==="A") gA++;
-  else gB++;
-
-  pA=0;
-  pB=0;
-
-  nextServe();
-}
-
-function point(team){
-  saveState();
-
-  if(team==="A"){
-    if(pA<=2)pA++;
-    else if(pA===3 && pB<=2)winGame("A");
-    else if(pA===3 && pB===3){pA=4;pB=3;}
-    else if(pA===3 && pB===4){pA=3;pB=3;}
-    else if(pA===4)winGame("A");
+  if (serveIndex > 3) {
+    serveIndex = 0;
   }
-
-  if(team==="B"){
-    if(pB<=2)pB++;
-    else if(pB===3 && pA<=2)winGame("B");
-    else if(pB===3 && pA===3){pB=4;pA=3;}
-    else if(pB===3 && pA===4){pA=3;pB=3;}
-    else if(pB===4)winGame("B");
-  }
-
-  update();
 }
 
-function manualServe(){
+function changeServe() {
   serveIndex++;
-  update();
+  if (serveIndex > 3) {
+    serveIndex = 0;
+  }
+  updateDisplay();
 }
 
-function undo(){
-  if(history.length===0)return;
-
-  const last=history.pop();
-  pA=last.pA;
-  pB=last.pB;
-  gA=last.gA;
-  gB=last.gB;
-  serveIndex=last.serveIndex;
-
-  update();
-}
-
-function reset(){
-  const result=`Team A - ${gA} | ${gB} - Team B`;
-
-  if(gA!==0 || gB!==0){
-    resetHistory.unshift(result);
-    resetHistory=resetHistory.slice(0,6);
-    localStorage.setItem("resetHistory",JSON.stringify(resetHistory));
+function resetGame() {
+  if (gamesA > 0 || gamesB > 0) {
+    addHistoryEntry();
   }
 
-  pA=0;
-  pB=0;
-  gA=0;
-  gB=0;
-  serveIndex=0;
-  history=[];
+  scoreA = 0;
+  scoreB = 0;
+  gamesA = 0;
+  gamesB = 0;
+  serveIndex = 0; // immer wieder Start mit rechtem Spieler Team A
 
-  update();
+  updateDisplay();
 }
 
-function renderHistory(){
-  const list=document.getElementById("resetHistoryList");
-  list.innerHTML="";
+function addHistoryEntry() {
+  const list = document.getElementById("history");
+  const entry = document.createElement("li");
 
-  resetHistory.forEach(entry=>{
-    const li=document.createElement("li");
-    li.textContent=entry;
-    list.appendChild(li);
+  const now = new Date();
+
+  const datum = now.toLocaleDateString("de-DE");
+  const uhrzeit = now.toLocaleTimeString("de-DE", {
+    hour: "2-digit",
+    minute: "2-digit"
   });
+
+  entry.innerText = `Team A - ${gamesA} : ${gamesB} - Team B - ${datum} ${uhrzeit}`;
+
+  list.insertBefore(entry, list.firstChild);
+
+  if (list.children.length > 25) {
+    list.removeChild(list.lastChild);
+  }
 }
 
-update();
-
-let pressCount=0, clickTimer=null, holdTimer=null, holdTriggered=false, spaceIsDown=false;
-
-document.addEventListener("keydown",e=>{
-  if(e.code!=="Space")return;
-  e.preventDefault();
-
-  if(spaceIsDown)return;
-  spaceIsDown=true;
-  holdTriggered=false;
-
-  holdTimer=setTimeout(()=>{
-    holdTriggered=true;
-    pressCount=0;
-    clearTimeout(clickTimer);
-    undo();
-  },1000);
-});
-
-document.addEventListener("keyup",e=>{
-  if(e.code!=="Space")return;
-  e.preventDefault();
-
-  spaceIsDown=false;
-  clearTimeout(holdTimer);
-
-  if(holdTriggered){holdTriggered=false;return;}
-
-  pressCount++;
-
-  clearTimeout(clickTimer);
-  clickTimer=setTimeout(()=>{
-    if(pressCount===1)point("A");
-    else if(pressCount===2)point("B");
-    pressCount=0;
-  },300);
-});
+updateDisplay();
 </script>
 
 </body>
