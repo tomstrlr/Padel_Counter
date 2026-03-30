@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 
 <style>
+
+.small-text{
+  font-size: 350px; /* anpassen nach Geschmack */
+}
+
 body{
   margin:0;
   font-family:Arial, sans-serif;
@@ -141,7 +146,6 @@ h1{
 
 <body>
 
-
 <div class="container">
 
   <div class="team">
@@ -188,83 +192,107 @@ h1{
 </div>
 
 <script>
+const points = [0, 15, 30, 40];
+
 let scoreA = 0;
 let scoreB = 0;
 let gamesA = 0;
 let gamesB = 0;
-
-const points = [0, 15, 30, 40];
-
-/*
-  Aufschlag-Reihenfolge:
-  0 = Team A rechter Spieler
-  1 = Team B rechter Spieler
-  2 = Team A linker Spieler
-  3 = Team B linker Spieler
-*/
 let serveIndex = 0;
+let historyStack = [];
 
-/*
-  Für Rückgängig:
-  Speichert den letzten Zustand vor jeder Punkteingabe
-*/
-let lastState = null;
+// DOM nur einmal holen
+const elPointsA = document.getElementById("pointsA");
+const elPointsB = document.getElementById("pointsB");
+const elGamesA = document.getElementById("gamesA");
+const elGamesB = document.getElementById("gamesB");
+const elServeA = document.getElementById("serveA");
+const elServeB = document.getElementById("serveB");
+const elHistory = document.getElementById("history");
+
+const serveOrder = [
+  { team: "A", text: "Aufschlag rechter Spieler" },
+  { team: "B", text: "Aufschlag rechter Spieler" },
+  { team: "A", text: "Aufschlag linker Spieler" },
+  { team: "B", text: "Aufschlag linker Spieler" }
+];
 
 function saveState() {
-  lastState = {
-    scoreA: scoreA,
-    scoreB: scoreB,
-    gamesA: gamesA,
-    gamesB: gamesB,
-    serveIndex: serveIndex
-  };
+  historyStack.push({
+    scoreA,
+    scoreB,
+    gamesA,
+    gamesB,
+    serveIndex
+  });
+
+  if (historyStack.length > 100) {
+    historyStack.shift();
+  }
 }
 
 function restoreLastState() {
-  if (!lastState) return;
+  if (historyStack.length === 0) return;
 
-  scoreA = lastState.scoreA;
-  scoreB = lastState.scoreB;
-  gamesA = lastState.gamesA;
-  gamesB = lastState.gamesB;
-  serveIndex = lastState.serveIndex;
+  const state = historyStack.pop();
+
+  scoreA = state.scoreA;
+  scoreB = state.scoreB;
+  gamesA = state.gamesA;
+  gamesB = state.gamesB;
+  serveIndex = state.serveIndex;
 
   updateDisplay();
 }
 
-function getServeInfo() {
-  const serveOrder = [
-    { team: "A", text: "Aufschlag rechter Spieler" },
-    { team: "B", text: "Aufschlag rechter Spieler" },
-    { team: "A", text: "Aufschlag linker Spieler" },
-    { team: "B", text: "Aufschlag linker Spieler" }
-  ];
-  return serveOrder[serveIndex];
+function getPointText(team) {
+  // Sonderfall 40:40 = "Einstand" über beide Seiten verteilt
+  if (scoreA >= 3 && scoreB >= 3 && scoreA === scoreB) {
+    return team === "A" ? "Eins" : "tand";
+  }
+
+  // Vorteil
+  if (scoreA >= 3 && scoreB >= 3) {
+    if (team === "A") {
+      return scoreA > scoreB ? "AD" : "40";
+    } else {
+      return scoreB > scoreA ? "AD" : "40";
+    }
+  }
+
+  return team === "A" ? points[scoreA] : points[scoreB];
 }
 
 function updateDisplay() {
-  document.getElementById("pointsA").innerText = getPointText(scoreA, scoreB);
-  document.getElementById("pointsB").innerText = getPointText(scoreB, scoreA);
+  const textA = getPointText("A");
+const textB = getPointText("B");
 
-  document.getElementById("gamesA").innerText = gamesA;
-  document.getElementById("gamesB").innerText = gamesB;
-
-  const serveInfo = getServeInfo();
-
-  document.getElementById("serveA").innerText =
-    serveInfo.team === "A" ? serveInfo.text : "";
-
-  document.getElementById("serveB").innerText =
-    serveInfo.team === "B" ? serveInfo.text : "";
+// Team A
+if (textA === "Eins") {
+  elPointsA.innerHTML = '<span class="small-text">Eins</span>';
+} else {
+  elPointsA.innerText = textA;
 }
 
-function getPointText(ownScore, otherScore) {
-  if (ownScore >= 3 && otherScore >= 3) {
-    if (ownScore === otherScore) return "40";
-    if (ownScore > otherScore) return "AD";
-    return "40";
-  }
-  return points[ownScore];
+// Team B
+if (textB === "tand") {
+  elPointsB.innerHTML = '<span class="small-text">tand</span>';
+} else {
+  elPointsB.innerText = textB;
+}
+
+  elGamesA.innerText = gamesA;
+  elGamesB.innerText = gamesB;
+
+  const serveInfo = serveOrder[serveIndex];
+  elServeA.innerText = serveInfo.team === "A" ? serveInfo.text : "";
+  elServeB.innerText = serveInfo.team === "B" ? serveInfo.text : "";
+}
+
+function newGame() {
+  scoreA = 0;
+  scoreB = 0;
+  serveIndex = (serveIndex + 1) % 4;
 }
 
 function point(team) {
@@ -272,36 +300,24 @@ function point(team) {
 
   if (team === "A") {
     scoreA++;
+    if (scoreA >= 4 && scoreA - scoreB >= 2) {
+      gamesA++;
+      newGame();
+    }
   } else {
     scoreB++;
-  }
-
-  if (scoreA >= 4 && scoreA - scoreB >= 2) {
-    gamesA++;
-    newGame();
-  } else if (scoreB >= 4 && scoreB - scoreA >= 2) {
-    gamesB++;
-    newGame();
+    if (scoreB >= 4 && scoreB - scoreA >= 2) {
+      gamesB++;
+      newGame();
+    }
   }
 
   updateDisplay();
 }
 
-function newGame() {
-  scoreA = 0;
-  scoreB = 0;
-
-  serveIndex++;
-  if (serveIndex > 3) {
-    serveIndex = 0;
-  }
-}
-
 function changeServe() {
-  serveIndex++;
-  if (serveIndex > 3) {
-    serveIndex = 0;
-  }
+  saveState();
+  serveIndex = (serveIndex + 1) % 4;
   updateDisplay();
 }
 
@@ -315,13 +331,12 @@ function resetGame() {
   gamesA = 0;
   gamesB = 0;
   serveIndex = 0;
-  lastState = null;
+  historyStack = [];
 
   updateDisplay();
 }
 
 function addHistoryEntry() {
-  const list = document.getElementById("history");
   const entry = document.createElement("li");
 
   const now = new Date();
@@ -333,60 +348,25 @@ function addHistoryEntry() {
 
   entry.innerText = `Partie: Team A - ${gamesA} : ${gamesB} - Team B - ${datum} ${uhrzeit}`;
 
-  list.insertBefore(entry, list.firstChild);
+  elHistory.insertBefore(entry, elHistory.firstChild);
 
-  if (list.children.length > 25) {
-    list.removeChild(list.lastChild);
+  if (elHistory.children.length > 25) {
+    elHistory.removeChild(elHistory.lastChild);
   }
 }
 
-/* Tastatursteuerung */
-let lastPressTime = 0;
-let pressTimeout = null;
-let holdTimeout = null;
-let isHolding = false;
-
-const DOUBLE_PRESS_DELAY = 300;
-const HOLD_DELAY = 500;
-
-document.addEventListener("keydown", function(e){
+// Tastatursteuerung
+document.addEventListener("keydown", function(e) {
   if (e.repeat) return;
-  if (e.key.toLowerCase() !== "a") return;
 
-  if (!holdTimeout) {
-    holdTimeout = setTimeout(() => {
-      isHolding = true;
-      restoreLastState();
-    }, HOLD_DELAY);
-  }
-});
+  const key = e.key.toLowerCase();
 
-document.addEventListener("keyup", function(e){
-  if (e.key.toLowerCase() !== "a") return;
-
-  clearTimeout(holdTimeout);
-  holdTimeout = null;
-
-  if (isHolding) {
-    isHolding = false;
-    lastPressTime = 0;
-    return;
-  }
-
-  const now = Date.now();
-
-  if (now - lastPressTime < DOUBLE_PRESS_DELAY) {
-    clearTimeout(pressTimeout);
-    pressTimeout = null;
+  if (key === "a") {
+    point("A");
+  } else if (key === "b") {
     point("B");
-    lastPressTime = 0;
-  } else {
-    pressTimeout = setTimeout(() => {
-      point("A");
-      pressTimeout = null;
-    }, DOUBLE_PRESS_DELAY);
-
-    lastPressTime = now;
+  } else if (key === "r") {
+    restoreLastState();
   }
 });
 
