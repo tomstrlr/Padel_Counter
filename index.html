@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 
 <style>
-
 .small-text{
   font-size: 350px;
 }
@@ -31,10 +30,10 @@ h1{
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  background:white;
   margin:10px;
   border-radius:20px;
   box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  color:white;
 }
 
 .points{
@@ -62,7 +61,7 @@ h1{
   font-size:45px;
   color:white;
   font-weight:bold;
-  white-space: nowrap;
+  white-space:nowrap;
 }
 
 .games{
@@ -135,39 +134,13 @@ h1{
   padding-left:20px;
 }
 
-
-.team{
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  margin:10px;
-  border-radius:20px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  color:white;
-}
-
-/* 🔵 Team A */
 .team-a{
   background:#1e3a8a;
 }
 
-/* 🔴 Team B */
 .team-b{
   background:#b91c1c;
 }
-
-/* Schriftzug oben links */
-.label-counter{
-  position:absolute;
-  top:10px;
-  left:10px;
-  font-size:40px;
-  font-weight:bold;
-  color:white;
-}
-
 </style>
 </head>
 
@@ -175,21 +148,21 @@ h1{
 
 <div class="container">
 
-  <div id="teamA" class="team team-a">
-  <div class="points" onclick="point('A')">
-    <div class="serving" id="serveA"></div>
-    <div class="point-value" id="pointsA">0</div>
+  <div id="teamLeft" class="team team-a">
+    <div class="points" onclick="pointSide('left')">
+      <div class="serving" id="serveLeft"></div>
+      <div class="point-value" id="pointsLeft">0</div>
+    </div>
+    <div class="games" id="gamesLeft">0</div>
   </div>
-  <div class="games" id="gamesA">0</div>
-</div>
 
-<div id="teamB" class="team team-b">
-  <div class="points" onclick="point('B')">
-    <div class="serving" id="serveB"></div>
-    <div class="point-value" id="pointsB">0</div>
+  <div id="teamRight" class="team team-b">
+    <div class="points" onclick="pointSide('right')">
+      <div class="serving" id="serveRight"></div>
+      <div class="point-value" id="pointsRight">0</div>
+    </div>
+    <div class="games" id="gamesRight">0</div>
   </div>
-  <div class="games" id="gamesB">0</div>
-</div>
 
 </div>
 
@@ -226,14 +199,18 @@ let gamesB = 0;
 let serveIndex = 0;
 let historyStack = [];
 
-// DOM nur einmal holen
-const elPointsA = document.getElementById("pointsA");
-const elPointsB = document.getElementById("pointsB");
-const elGamesA = document.getElementById("gamesA");
-const elGamesB = document.getElementById("gamesB");
-const elServeA = document.getElementById("serveA");
-const elServeB = document.getElementById("serveB");
+let leftTeam = "A";
+let rightTeam = "B";
+
+const elPointsLeft = document.getElementById("pointsLeft");
+const elPointsRight = document.getElementById("pointsRight");
+const elGamesLeft = document.getElementById("gamesLeft");
+const elGamesRight = document.getElementById("gamesRight");
+const elServeLeft = document.getElementById("serveLeft");
+const elServeRight = document.getElementById("serveRight");
 const elHistory = document.getElementById("history");
+const elTeamLeft = document.getElementById("teamLeft");
+const elTeamRight = document.getElementById("teamRight");
 
 const serveOrder = [
   { team: "A", text: "Rechter Spieler" },
@@ -248,7 +225,9 @@ function saveState() {
     scoreB,
     gamesA,
     gamesB,
-    serveIndex
+    serveIndex,
+    leftTeam,
+    rightTeam
   });
 
   if (historyStack.length > 100) {
@@ -266,48 +245,57 @@ function restoreLastState() {
   gamesA = state.gamesA;
   gamesB = state.gamesB;
   serveIndex = state.serveIndex;
+  leftTeam = state.leftTeam;
+  rightTeam = state.rightTeam;
 
   updateDisplay();
 }
 
+function getGames(team) {
+  return team === "A" ? gamesA : gamesB;
+}
+
 function getPointText(team) {
+  const ownScore = team === "A" ? scoreA : scoreB;
+  const otherScore = team === "A" ? scoreB : scoreA;
+
   if (scoreA >= 3 && scoreB >= 3 && scoreA === scoreB) {
     return team === "A" ? "Eins" : "tand";
   }
 
   if (scoreA >= 3 && scoreB >= 3) {
-    if (team === "A") {
-      return scoreA > scoreB ? "V" : "40";
-    } else {
-      return scoreB > scoreA ? "V" : "40";
-    }
+    if (ownScore > otherScore) return "V";
+    return "40";
   }
 
-  return team === "A" ? points[scoreA] : points[scoreB];
+  return points[ownScore];
 }
 
 function updateDisplay() {
-  const textA = getPointText("A");
-  const textB = getPointText("B");
+  const leftText = getPointText(leftTeam);
+  const rightText = getPointText(rightTeam);
 
-  if (textA === "Eins") {
-    elPointsA.innerHTML = '<span class="small-text">Eins</span>';
+  if (leftText === "Eins" || leftText === "tand") {
+    elPointsLeft.innerHTML = `<span class="small-text">${leftText}</span>`;
   } else {
-    elPointsA.innerText = textA;
+    elPointsLeft.innerText = leftText;
   }
 
-  if (textB === "tand") {
-    elPointsB.innerHTML = '<span class="small-text">tand</span>';
+  if (rightText === "Eins" || rightText === "tand") {
+    elPointsRight.innerHTML = `<span class="small-text">${rightText}</span>`;
   } else {
-    elPointsB.innerText = textB;
+    elPointsRight.innerText = rightText;
   }
 
-  elGamesA.innerText = gamesA;
-  elGamesB.innerText = gamesB;
+  elGamesLeft.innerText = getGames(leftTeam);
+  elGamesRight.innerText = getGames(rightTeam);
 
   const serveInfo = serveOrder[serveIndex];
-  elServeA.innerText = serveInfo.team === "A" ? serveInfo.text : "";
-  elServeB.innerText = serveInfo.team === "B" ? serveInfo.text : "";
+  elServeLeft.innerText = serveInfo.team === leftTeam ? serveInfo.text : "";
+  elServeRight.innerText = serveInfo.team === rightTeam ? serveInfo.text : "";
+
+  elTeamLeft.className = "team " + (leftTeam === "A" ? "team-a" : "team-b");
+  elTeamRight.className = "team " + (rightTeam === "A" ? "team-a" : "team-b");
 }
 
 function newGame() {
@@ -336,6 +324,14 @@ function point(team) {
   updateDisplay();
 }
 
+function pointSide(side) {
+  if (side === "left") {
+    point(leftTeam);
+  } else {
+    point(rightTeam);
+  }
+}
+
 function changeServe() {
   saveState();
   serveIndex = (serveIndex + 1) % 4;
@@ -352,6 +348,8 @@ function resetGame() {
   gamesA = 0;
   gamesB = 0;
   serveIndex = 0;
+  leftTeam = "A";
+  rightTeam = "B";
   historyStack = [];
 
   updateDisplay();
@@ -367,7 +365,7 @@ function addHistoryEntry() {
     minute: "2-digit"
   });
 
-  entry.innerText = ` Team Blau - ${gamesA} : ${gamesB} - Team Rot - ${datum} ${uhrzeit}`;
+  entry.innerText = `Team Blau - ${gamesA} : ${gamesB} - Team Rot - ${datum} ${uhrzeit}`;
 
   elHistory.insertBefore(entry, elHistory.firstChild);
 
@@ -378,34 +376,16 @@ function addHistoryEntry() {
 
 function changeSides() {
   saveState();
-
-  // Werte tauschen
-  [scoreA, scoreB] = [scoreB, scoreA];
-  [gamesA, gamesB] = [gamesB, gamesA];
-
-  // Aufschlag tauschen
-  if (serveIndex === 0) serveIndex = 1;
-  else if (serveIndex === 1) serveIndex = 0;
-  else if (serveIndex === 2) serveIndex = 3;
-  else if (serveIndex === 3) serveIndex = 2;
-
-  // Farben mitwandern lassen
-  const teamAEl = document.getElementById("teamA");
-  const teamBEl = document.getElementById("teamB");
-
-  teamAEl.classList.toggle("team-a");
-  teamAEl.classList.toggle("team-b");
-
-  teamBEl.classList.toggle("team-a");
-  teamBEl.classList.toggle("team-b");
-
+  [leftTeam, rightTeam] = [rightTeam, leftTeam];
   updateDisplay();
 }
+
 function freeAction() {
-  // bewusst frei
 }
 
-// Tastatursteuerung
+// Tastatur:
+// a = immer Team A (blau)
+// b = immer Team B (rot)
 document.addEventListener("keydown", function(e) {
   if (e.repeat) return;
 
