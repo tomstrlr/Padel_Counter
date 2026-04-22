@@ -259,10 +259,6 @@ function getPointText(team) {
   const ownScore = team === "A" ? scoreA : scoreB;
   const otherScore = team === "A" ? scoreB : scoreA;
 
-  if (scoreA >= 3 && scoreB >= 3 && scoreA === scoreB) {
-    return team === "A" ? "Eins" : "tand";
-  }
-
   if (scoreA >= 3 && scoreB >= 3) {
     if (ownScore > otherScore) return "V";
     return "40";
@@ -272,8 +268,17 @@ function getPointText(team) {
 }
 
 function updateDisplay() {
-  const leftText = getPointText(leftTeam);
-  const rightText = getPointText(rightTeam);
+  let leftText;
+  let rightText;
+
+  // Sonderfall Einstand immer links/rechts fix ausgeben
+  if (scoreA >= 3 && scoreB >= 3 && scoreA === scoreB) {
+    leftText = "Eins";
+    rightText = "tand";
+  } else {
+    leftText = getPointText(leftTeam);
+    rightText = getPointText(rightTeam);
+  }
 
   if (leftText === "Eins" || leftText === "tand") {
     elPointsLeft.innerHTML = `<span class="small-text">${leftText}</span>`;
@@ -297,7 +302,6 @@ function updateDisplay() {
   elTeamLeft.className = "team " + (leftTeam === "A" ? "team-a" : "team-b");
   elTeamRight.className = "team " + (rightTeam === "A" ? "team-a" : "team-b");
 }
-
 function newGame() {
   scoreA = 0;
   scoreB = 0;
