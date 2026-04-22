@@ -6,7 +6,7 @@
 <style>
 
 .small-text{
-  font-size: 350px; /* anpassen nach Geschmack */
+  font-size: 350px;
 }
 
 body{
@@ -44,32 +44,25 @@ h1{
   display:flex;
   align-items:center;
   justify-content:center;
+  cursor:pointer;
+  user-select:none;
 }
 
 .point-value{
   font-size:600px;
   font-weight:bold;
   line-height:1;
-}
-
-.team-label{
-  position:absolute;
-  top:15px;
-  left:20px;
-  font-size:30px;
-  font-weight:bold;
+  user-select:none;
 }
 
 .serving{
   position:absolute;
-  top:15px;
-  right:20px;
-  font-size:25px;
-  color:red;
+  top:10px;
+  left:10px;
+  font-size:45px;
+  color:white;
   font-weight:bold;
-  text-align:right;
-  min-height:60px;
-  max-width:260px;
+  white-space: nowrap;
 }
 
 .games{
@@ -141,6 +134,40 @@ h1{
   font-size:20px;
   padding-left:20px;
 }
+
+
+.team{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  margin:10px;
+  border-radius:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  color:white;
+}
+
+/* 🔵 Team A */
+.team-a{
+  background:#1e3a8a;
+}
+
+/* 🔴 Team B */
+.team-b{
+  background:#b91c1c;
+}
+
+/* Schriftzug oben links */
+.label-counter{
+  position:absolute;
+  top:10px;
+  left:10px;
+  font-size:40px;
+  font-weight:bold;
+  color:white;
+}
+
 </style>
 </head>
 
@@ -148,23 +175,21 @@ h1{
 
 <div class="container">
 
-  <div class="team">
-    <div class="points">
-      <div class="team-label">Team A</div>
-      <div class="serving" id="serveA"></div>
-      <div class="point-value" id="pointsA">0</div>
-    </div>
-    <div class="games" id="gamesA">0</div>
+  <div id="teamA" class="team team-a">
+  <div class="points" onclick="point('A')">
+    <div class="serving" id="serveA"></div>
+    <div class="point-value" id="pointsA">0</div>
   </div>
+  <div class="games" id="gamesA">0</div>
+</div>
 
-  <div class="team">
-    <div class="points">
-      <div class="team-label">Team B</div>
-      <div class="serving" id="serveB"></div>
-      <div class="point-value" id="pointsB">0</div>
-    </div>
-    <div class="games" id="gamesB">0</div>
+<div id="teamB" class="team team-b">
+  <div class="points" onclick="point('B')">
+    <div class="serving" id="serveB"></div>
+    <div class="point-value" id="pointsB">0</div>
   </div>
+  <div class="games" id="gamesB">0</div>
+</div>
 
 </div>
 
@@ -178,8 +203,8 @@ h1{
       </div>
 
       <div class="point-buttons">
-        <button class="point-btn" onclick="point('A')">Team A Punkt</button>
-        <button class="point-btn" onclick="point('B')">Team B Punkt</button>
+        <button class="point-btn" onclick="changeSides()">Seite wechseln</button>
+        <button class="point-btn" onclick="freeAction()">Frei</button>
       </div>
     </div>
 
@@ -211,10 +236,10 @@ const elServeB = document.getElementById("serveB");
 const elHistory = document.getElementById("history");
 
 const serveOrder = [
-  { team: "A", text: "Aufschlag rechter Spieler" },
-  { team: "B", text: "Aufschlag rechter Spieler" },
-  { team: "A", text: "Aufschlag linker Spieler" },
-  { team: "B", text: "Aufschlag linker Spieler" }
+  { team: "A", text: "Rechter Spieler" },
+  { team: "B", text: "Rechter Spieler" },
+  { team: "A", text: "Linker Spieler" },
+  { team: "B", text: "Linker Spieler" }
 ];
 
 function saveState() {
@@ -246,17 +271,15 @@ function restoreLastState() {
 }
 
 function getPointText(team) {
-  // Sonderfall 40:40 = "Einstand" über beide Seiten verteilt
   if (scoreA >= 3 && scoreB >= 3 && scoreA === scoreB) {
     return team === "A" ? "Eins" : "tand";
   }
 
-  // Vorteil
   if (scoreA >= 3 && scoreB >= 3) {
     if (team === "A") {
-      return scoreA > scoreB ? "AD" : "40";
+      return scoreA > scoreB ? "V" : "40";
     } else {
-      return scoreB > scoreA ? "AD" : "40";
+      return scoreB > scoreA ? "V" : "40";
     }
   }
 
@@ -265,21 +288,19 @@ function getPointText(team) {
 
 function updateDisplay() {
   const textA = getPointText("A");
-const textB = getPointText("B");
+  const textB = getPointText("B");
 
-// Team A
-if (textA === "Eins") {
-  elPointsA.innerHTML = '<span class="small-text">Eins</span>';
-} else {
-  elPointsA.innerText = textA;
-}
+  if (textA === "Eins") {
+    elPointsA.innerHTML = '<span class="small-text">Eins</span>';
+  } else {
+    elPointsA.innerText = textA;
+  }
 
-// Team B
-if (textB === "tand") {
-  elPointsB.innerHTML = '<span class="small-text">tand</span>';
-} else {
-  elPointsB.innerText = textB;
-}
+  if (textB === "tand") {
+    elPointsB.innerHTML = '<span class="small-text">tand</span>';
+  } else {
+    elPointsB.innerText = textB;
+  }
 
   elGamesA.innerText = gamesA;
   elGamesB.innerText = gamesB;
@@ -346,13 +367,42 @@ function addHistoryEntry() {
     minute: "2-digit"
   });
 
-  entry.innerText = `Partie: Team A - ${gamesA} : ${gamesB} - Team B - ${datum} ${uhrzeit}`;
+  entry.innerText = ` Team Blau - ${gamesA} : ${gamesB} - Team Rot - ${datum} ${uhrzeit}`;
 
   elHistory.insertBefore(entry, elHistory.firstChild);
 
   if (elHistory.children.length > 25) {
     elHistory.removeChild(elHistory.lastChild);
   }
+}
+
+function changeSides() {
+  saveState();
+
+  // Werte tauschen
+  [scoreA, scoreB] = [scoreB, scoreA];
+  [gamesA, gamesB] = [gamesB, gamesA];
+
+  // Aufschlag tauschen
+  if (serveIndex === 0) serveIndex = 1;
+  else if (serveIndex === 1) serveIndex = 0;
+  else if (serveIndex === 2) serveIndex = 3;
+  else if (serveIndex === 3) serveIndex = 2;
+
+  // Farben mitwandern lassen
+  const teamAEl = document.getElementById("teamA");
+  const teamBEl = document.getElementById("teamB");
+
+  teamAEl.classList.toggle("team-a");
+  teamAEl.classList.toggle("team-b");
+
+  teamBEl.classList.toggle("team-a");
+  teamBEl.classList.toggle("team-b");
+
+  updateDisplay();
+}
+function freeAction() {
+  // bewusst frei
 }
 
 // Tastatursteuerung
@@ -363,10 +413,15 @@ document.addEventListener("keydown", function(e) {
 
   if (key === "a") {
     point("A");
-  } else if (key === "b") {
+  } 
+  else if (key === "b") {
     point("B");
-  } else if (key === "r") {
+  } 
+  else if (key === "r") {
     restoreLastState();
+  } 
+  else if (key === "s") {
+    resetGame();
   }
 });
 
